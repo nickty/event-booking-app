@@ -1,6 +1,7 @@
 {
     "env":{
         "MONGO_USER":"mizan",
-        "MONGO_PASSWORD": "vWZTLUEg9MzeVOfV"
+        "MONGO_PASSWORD": "vWZTLUEg9MzeVOfV",
+        "MONGO_DB" : "event-booking-db"
     }
 }

@@ -3,12 +3,12 @@ const bodyParser = require('body-parser')
 const {graphqlHTTP} = require('express-graphql')
 const { buildSchema } = require('graphql')
 
+const Event = require('./models/event')
+
 const mongoose = require('mongoose')
 
 
 const app = express()
-
-const events = []
 
 app.use(bodyParser.json())
 
@@ -44,25 +44,43 @@ app.use('/graphql', graphqlHTTP({
     `),
     rootValue: {
         events: () => {
-           return events
+        return Event.find()
+           .then( events => {
+               return events.map(event =>{
+                   return {...event._doc}
+               })
+           })
+           .catch(err => {
+               throw err
+           })
         },
         createEvent: (args) => {
-            const event = {
-                _id: Math.random().toString(),
+        
+            const event = new Event({
+                
                 title: args.eventInput.title,
                 description: args.eventInput.description,
                 price: +args.eventInput.price,
-                date: args.eventInput.date
-            }
+                date: new Date(args.eventInput.date)
+            })
 
-            events.push(event)
+            event.save().then( result => {
+                console.log(result)
+                return {
+                    ...result._doc
+                }
+            }).catch(err => {
+                console.log(err)
+                throw err
+            })
+
             return event
         }
     },
     graphiql: true
 }))
 
-mongoose.connect(`mongodb+srv://mizan:${process.env.MONGO_PASSWORD}@cluster0.s8caj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
+mongoose.connect(`mongodb+srv://mizan:${process.env.MONGO_PASSWORD}@cluster0.s8caj.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`)
     .then(()=>{
         app.listen(4000, () => console.log('DB connected'))
     })
