@@ -1,7 +1,9 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const {graphqlHTTP} = require('express-graphql')
-const { buildSchema, } = require('graphql')
+const { buildSchema } = require('graphql')
+
+const mongoose = require('mongoose')
 
 
 const app = express()
@@ -60,4 +62,11 @@ app.use('/graphql', graphqlHTTP({
     graphiql: true
 }))
 
-app.listen(4000)
+mongoose.connect(`mongodb+srv://mizan:${process.env.MONGO_PASSWORD}@cluster0.s8caj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
+    .then(()=>{
+        app.listen(4000, () => console.log('DB connected'))
+    })
+    .catch(err => {
+        console.log(err)
+    })
+
